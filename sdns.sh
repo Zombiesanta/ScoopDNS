@@ -1,6 +1,12 @@
 #!/bin/sh
 
-digger="dig +multiline +noall +answer +nocmd"
+ns=(
+  ns1.inmotionhosting.com ns2.inmotionhosting.com
+  ns1.webhostinghub.com ns2.webhostinghub.com
+  8.8.8.8 8.8.4.4
+)
+
+sdns="dig +multiline +noall +answer +nocmd"
 
 domain=$1
 
@@ -16,27 +22,29 @@ cat << EOF
 EOF
 
 echo -e "\n NS \n------------------------------"
-$digger $domain NS
+$sdns $domain NS
 
 echo -e "\n A \n------------------------------"
-$digger $domain A
+$sdns $domain A
 
 echo -e "\n MX \n------------------------------"
-$digger $domain MX
+$sdns $domain MX
 
 echo -e "\n TXT \n------------------------------"
-$digger $domain TXT
+$sdns $domain TXT
 
 echo -e "\n DMARC \n------------------------------"
-$digger _dmarc.$domain TXT
+$sdns _dmarc.$domain TXT
+
+echo -e "\n PTR \n------------------------------"
+echo $(dig +short -x `dig +short awoa.com`) [ RDNS: `dig +short awoa.com` ]
 
 echo -e "\n SRV \n------------------------------"
-$digger $domain SRV
-
-echo -e "\n SOA \n------------------------------"
-$digger $domain SOA
+$sdns $domain SRV
 
 echo -e "\n Host \n------------------------------"
 host $domain
 
+echo -e "\n SOA \n------------------------------"
+$sdns $domain SOA
 echo
