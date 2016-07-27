@@ -1,50 +1,74 @@
 #!/bin/sh
 
-ns=(
-  ns1.inmotionhosting.com ns2.inmotionhosting.com
-  ns1.webhostinghub.com ns2.webhostinghub.com
-  8.8.8.8 8.8.4.4
-)
-
-sdns="dig +multiline +noall +answer +nocmd"
-
 domain=$1
-
 if [ -z "$1" ]; then
   echo "Error: You need to pass a domain! Exiting..."
   exit
 fi
 
 cat << EOF
-
-  ScoopDNS - Just scoop the DNS
+ ========================================
+ => ScoopDNS - Just scoop the DNS
  ========================================
 EOF
 
-echo -e "\n NS \n------------------------------"
-$sdns $domain NS
+ns=(
+  8.8.8.8 8.8.4.4
+  77.88.8.8 77.88.8.1
+)
 
-echo -e "\n A \n------------------------------"
-$sdns $domain A
+header() {
+  echo -e "\n $title\n------------------------------"
+}
 
-echo -e "\n MX \n------------------------------"
-$sdns $domain MX
+digger() {
+  sdns="dig +multiline +noall +answer +nocmd"
 
-echo -e "\n TXT \n------------------------------"
-$sdns $domain TXT
+  for n in ${ns[@]}; do
+    $sdns $n $sub$domain $type
+  done
+}
 
-echo -e "\n DMARC \n------------------------------"
-$sdns _dmarc.$domain TXT
+title="Nameservers"
+type=NS
+header
+digger
 
-echo -e "\n PTR \n------------------------------"
-echo $(dig +short -x `dig +short awoa.com`) [ RDNS: `dig +short awoa.com` ]
+title="A"
+type=A
+header
+digger
 
-echo -e "\n SRV \n------------------------------"
-$sdns $domain SRV
+title="MX"
+type=MX
+header
+digger
 
-echo -e "\n Host \n------------------------------"
-host $domain
+title="TXT"
+type=TXT
+digger
 
-echo -e "\n SOA \n------------------------------"
-$sdns $domain SOA
+title="DMARC"
+sub="_dmarc"
+type=TXT
+header
+digger
+
+title="RDNS"
+header
+for n in ${ns[@]:1:3}; do
+  rdns=`dig $n +short $domain`
+  echo $(dig $n +short -x $rdns) [ RDNS: $rdns ]
+done
+
+title="SRV"
+type=SRV
+header
+digger
+
+title="SOA"
+type=SOA
+header
+digger
+
 echo
