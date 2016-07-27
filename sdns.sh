@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 domain=$1
 if [ -z "$1" ]; then
@@ -21,7 +21,7 @@ header() {
   echo -e "\n $title\n------------------------------"
 }
 
-digger() {
+digem() {
   sdns="dig +multiline +noall +answer +nocmd"
 
   for n in ${ns[@]}; do
@@ -29,31 +29,35 @@ digger() {
   done
 }
 
+digger() {
+  digem | sort | uniq
+}
+
 title="Nameservers"
 type=NS
 header
-digger | sort | uniq
+digger
 
 title="A"
 type=A
 header
-digger | sort | uniq
+digger
 
 title="MX"
 type=MX
 header
-digger | sort | uniq
+digger
 
 title="TXT"
 type=TXT
 header
-digger | sort | uniq
+digger
 
 title="DMARC"
 sub="_dmarc"
 type=TXT
 header
-digger | sort | uniq
+digger
 
 title="RDNS"
 header
@@ -65,11 +69,11 @@ done
 title="SRV"
 type=SRV
 header
-digger | sort | uniq
+digger
 
 title="SOA"
 type=SOA
 header
-digger | sort | uniq
+digger
 
 echo
