@@ -24,7 +24,7 @@ header() {
 digger() {
   sdns="dig +multiline +noall +answer +nocmd"
 
-  for n in ${ns[@]}; do
+  for n in ${ns[@]1:3}; do
     $sdns $n $sub$domain $type
   done
 }
