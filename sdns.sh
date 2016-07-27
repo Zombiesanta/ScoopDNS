@@ -13,8 +13,8 @@ cat << EOF
 EOF
 
 ns=(
-  8.8.8.8 8.8.4.4
-  77.88.8.8 77.88.8.1
+  8.8.8.8
+  77.88.8.8
 )
 
 header() {
@@ -24,7 +24,7 @@ header() {
 digger() {
   sdns="dig +multiline +noall +answer +nocmd"
 
-  for n in ${ns[@]1:3}; do
+  for n in ${ns[@]}; do
     $sdns $n $sub$domain $type
   done
 }
@@ -32,31 +32,32 @@ digger() {
 title="Nameservers"
 type=NS
 header
-digger
+digger | sort | uniq
 
 title="A"
 type=A
 header
-digger
+digger | sort | uniq
 
 title="MX"
 type=MX
 header
-digger
+digger | sort | uniq
 
 title="TXT"
 type=TXT
-digger
+header
+digger | sort | uniq
 
 title="DMARC"
 sub="_dmarc"
 type=TXT
 header
-digger
+digger | sort | uniq
 
 title="RDNS"
 header
-for n in ${ns[@]:1:3}; do
+for n in ${ns[@]}; do
   rdns=`dig $n +short $domain`
   echo $(dig $n +short -x $rdns) [ RDNS: $rdns ]
 done
@@ -64,11 +65,11 @@ done
 title="SRV"
 type=SRV
 header
-digger
+digger | sort | uniq
 
 title="SOA"
 type=SOA
 header
-digger
+digger | sort | uniq
 
 echo
