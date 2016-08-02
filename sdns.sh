@@ -7,21 +7,24 @@ if [ -z "$1" ]; then
 fi
 
 cat << EOF
+
  ========================================
  => ScoopDNS - Just scoop the DNS
  ========================================
+
 EOF
 
 ns=(
+  ns1.inmotionhosting.com
+  ns1.webhostinghub.com
   8.8.8.8
-  77.88.8.8
 )
 
 header() {
   echo -e "\n $title\n------------------------------"
 }
 
-digem() {
+digger() {
   sdns="dig +multiline +noall +answer +nocmd"
 
   for n in ${ns[@]}; do
@@ -29,35 +32,36 @@ digem() {
   done
 }
 
-digger() {
-  digem | sort | uniq
+sorter() {
+  sort | uniq
 }
 
 title="Nameservers"
-type=NS
 header
-digger
+type=NS
+digger | sorter
 
 title="A"
-type=A
 header
-digger
+type=A
+digger | sorter
 
 title="MX"
-type=MX
 header
-digger
+type=MX
+digger | sorter
 
 title="TXT"
-type=TXT
 header
-digger
+type=TXT
+digger | sorter
 
 title="DMARC"
 sub="_dmarc"
 type=TXT
 header
-digger
+digger | sorter
+sub=""
 
 title="RDNS"
 header
@@ -69,11 +73,11 @@ done
 title="SRV"
 type=SRV
 header
-digger
+digger | sorter
 
 title="SOA"
 type=SOA
 header
-digger
+digger | uniq
 
 echo
